@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Plan de Estudios</title>
+<style>
+/* Colores base y derivados */
+:root {
+  --fucsia: #FF00A0;
+  --fucsia-claro: #FF66C2;
+  --azul: #0066FF;
+  --azul-claro: #66A3FF;
+  --violeta: #9933CC;
+}
+
+/* Layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 10px;
+}
+
+.semestre, .extracurriculares {
+  border: 1px solid #ccc;
+  padding: 10px;
+  min-height: 100px;
+}
+
+/* Columna extracurriculares */
+.extracurriculares {
+  border: 2px solid var(--violeta);
+  background-color: #f3e6f9;
+}
+
+/* Colores por área */
+.area1 { background-color: var(--fucsia); color: white; }
+.area2 { background-color: var(--fucsia-claro); color: black; }
+.area3 { background-color: var(--azul); color: white; }
+.area4 { background-color: var(--azul-claro); color: black; }
+.area5 { background-color: var(--violeta); color: white; }
+</style>
+</head>
+<body>
+
+<h1>Plan de Estudios</h1>
+
+<div class="grid-container" id="plan-estudios">
+  <!-- Semestres 1 a 10 -->
+  <div class="semestre area1" id="sem1">Semestre 1</div>
+  <div class="semestre area2" id="sem2">Semestre 2</div>
+  <div class="semestre area3" id="sem3">Semestre 3</div>
+  <div class="semestre area4" id="sem4">Semestre 4</div>
+  <div class="semestre area5" id="sem5">Semestre 5</div>
+  <div class="semestre area1" id="sem6">Semestre 6</div>
+  <div class="semestre area2" id="sem7">Semestre 7</div>
+  <div class="semestre area3" id="sem8">
+    Semestre 8<br>
+    <label for="curso-electivo">Curso Electivo:</label><br>
+    <select id="curso-electivo">
+      <option value="">Seleccione...</option>
+    </select>
+  </div>
+  <div class="semestre area4" id="sem9">Semestre 9</div>
+  <div class="semestre area5" id="sem10">Semestre 10</div>
+
+  <!-- Columna de extracurriculares -->
+  <div class="extracurriculares" id="extracurriculares">
+    <h3>Extracurriculares</h3>
+    <ul id="lista-extracurriculares"></ul>
+  </div>
+</div>
+
+<script>
+// Lista inicial de extracurriculares
+let extracurriculares = [
+  "Arte y Cultura",
+  "Deporte",
+  "Voluntariado",
+  "Taller de Liderazgo",
+  "Idiomas"
+];
+
+// Cursos y créditos aprobados
+let aprobados = [];
+let cursosAprobados = [];
+let creditos = 0;
+
+// Mostrar extracurriculares disponibles
+function renderExtracurriculares() {
+  const lista = document.getElementById("lista-extracurriculares");
+  lista.innerHTML = "";
+  extracurriculares.forEach(curso => {
+    if (!aprobados.includes(curso)) {
+      let li = document.createElement("li");
+      li.textContent = curso;
+      lista.appendChild(li);
+    }
+  });
+}
+
+// Cargar opciones en semestre 8
+function cargarOpcionesElectivo() {
+  const select = document.getElementById("curso-electivo");
+  select.innerHTML = "<option value=''>Seleccione...</option>";
+  extracurriculares.forEach(curso => {
+    if (!aprobados.includes(curso)) {
+      let opt = document.createElement("option");
+      opt.value = curso;
+      opt.textContent = curso;
+      select.appendChild(opt);
+    }
+  });
+}
+
+// Evento para marcar electivo como aprobado
+document.getElementById("curso-electivo").addEventListener("change", function() {
+  let seleccionado = this.value;
+  if (seleccionado && !aprobados.includes(seleccionado)) {
+    aprobados.push(seleccionado);
+    renderExtracurriculares();
+    cargarOpcionesElectivo();
+  }
+});
+
+// Validación de bloqueos complejos
+function puedeCursar(curso, requisitos) {
+  return (
+    creditos >= requisitos.creditos &&
+    requisitos.cursos.every(c => cursosAprobados.includes(c))
+  );
+}
+
+// Inicializar
+renderExtracurriculares();
+cargarOpcionesElectivo();
+</script>
+
+</body>
+</html>
