@@ -2,137 +2,209 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Plan de Estudios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malla Curricular</title>
 <style>
-/* Colores base y derivados */
-:root {
-  --fucsia: #FF00A0;
-  --fucsia-claro: #FF66C2;
-  --azul: #0066FF;
-  --azul-claro: #66A3FF;
-  --violeta: #9933CC;
-}
-
-/* Layout */
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  gap: 10px;
-}
-
-.semestre, .extracurriculares {
-  border: 1px solid #ccc;
-  padding: 10px;
-  min-height: 100px;
-}
-
-/* Columna extracurriculares */
-.extracurriculares {
-  border: 2px solid var(--violeta);
-  background-color: #f3e6f9;
-}
-
-/* Colores por área */
-.area1 { background-color: var(--fucsia); color: white; }
-.area2 { background-color: var(--fucsia-claro); color: black; }
-.area3 { background-color: var(--azul); color: white; }
-.area4 { background-color: var(--azul-claro); color: black; }
-.area5 { background-color: var(--violeta); color: white; }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #fafafa;
+    }
+    header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: linear-gradient(90deg, #f8a1d1, #a1c4fd);
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1000;
+    }
+    .progress-container {
+        background-color: #ddd;
+        border-radius: 8px;
+        height: 20px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 100%;
+        background-color: #ff69b4;
+        width: 0%;
+        transition: width 0.3s;
+    }
+    main {
+        padding: 80px 15px 20px;
+    }
+    h2 {
+        color: #333;
+    }
+    .semestre {
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .curso {
+        background: #e3f2fd;
+        margin: 5px 0;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+    }
+    .curso.fucsia { background: #f8bbd0; }
+    .curso.azul { background: #bbdefb; }
+    .curso.completado { opacity: 0.6; text-decoration: line-through; }
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 400px;
+        width: 90%;
+    }
+    .leyenda {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    .leyenda-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .cuadro {
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+    }
 </style>
 </head>
 <body>
 
-<h1>Plan de Estudios</h1>
+<header>
+    <div><strong>Créditos: </strong><span id="creditos">0</span> / 220</div>
+    <div class="progress-container">
+        <div class="progress-bar" id="barra"></div>
+    </div>
+</header>
 
-<div class="grid-container" id="plan-estudios">
-  <!-- Semestres 1 a 10 -->
-  <div class="semestre area1" id="sem1">Semestre 1</div>
-  <div class="semestre area2" id="sem2">Semestre 2</div>
-  <div class="semestre area3" id="sem3">Semestre 3</div>
-  <div class="semestre area4" id="sem4">Semestre 4</div>
-  <div class="semestre area5" id="sem5">Semestre 5</div>
-  <div class="semestre area1" id="sem6">Semestre 6</div>
-  <div class="semestre area2" id="sem7">Semestre 7</div>
-  <div class="semestre area3" id="sem8">
-    Semestre 8<br>
-    <label for="curso-electivo">Curso Electivo:</label><br>
-    <select id="curso-electivo">
-      <option value="">Seleccione...</option>
-    </select>
-  </div>
-  <div class="semestre area4" id="sem9">Semestre 9</div>
-  <div class="semestre area5" id="sem10">Semestre 10</div>
+<main id="malla"></main>
 
-  <!-- Columna de extracurriculares -->
-  <div class="extracurriculares" id="extracurriculares">
-    <h3>Extracurriculares</h3>
-    <ul id="lista-extracurriculares"></ul>
-  </div>
+<div class="leyenda">
+    <div class="leyenda-item"><div class="cuadro" style="background:#f8bbd0"></div> Estudios Generales</div>
+    <div class="leyenda-item"><div class="cuadro" style="background:#bbdefb"></div> Estudios Específicos</div>
+    <div class="leyenda-item"><div class="cuadro" style="background:#f48fb1"></div> Especialidad</div>
+    <div class="leyenda-item"><div class="cuadro" style="background:#90caf9"></div> Prácticas</div>
+    <div class="leyenda-item"><div class="cuadro" style="background:#ce93d8"></div> Extracurriculares</div>
+</div>
+
+<!-- Modal Extracurriculares -->
+<div class="modal" id="modalExtrac">
+    <div class="modal-content">
+        <h3>Selecciona un curso extracurricular</h3>
+        <div id="listaExtrac"></div>
+        <button onclick="cerrarModal()">Cancelar</button>
+    </div>
 </div>
 
 <script>
-// Lista inicial de extracurriculares
-let extracurriculares = [
-  "Arte y Cultura",
-  "Deporte",
-  "Voluntariado",
-  "Taller de Liderazgo",
-  "Idiomas"
+const extracurriculares = [
+    { nombre: "EVENTOS Y PROTOCOLO", creditos: 2 },
+    { nombre: "RELACIONES COMUNITARIAS", creditos: 3 },
+    { nombre: "COMUNICACIÓN Y ASERTIVIDAD", creditos: 3 },
+    { nombre: "TALLER DE ORATORIA", creditos: 3 },
+    { nombre: "TALLER DE PRODUCCIÓN DE GUIONES", creditos: 3 },
+    { nombre: "DIAGNÓSTICOS COMUNITARIOS", creditos: 3 }
+];
+let extracPendientes = [...extracurriculares];
+let creditos = 0;
+const barra = document.getElementById("barra");
+const creditosEl = document.getElementById("creditos");
+
+const semestres = [
+    { num: 8, cursos: [{ nombre: "Electivo extracurricular", creditos: 0, extrac: true }] },
+    { num: 10, cursos: [] }
 ];
 
-// Cursos y créditos aprobados
-let aprobados = [];
-let cursosAprobados = [];
-let creditos = 0;
+function renderMalla() {
+    const cont = document.getElementById("malla");
+    cont.innerHTML = "";
+    semestres.forEach(sem => {
+        const div = document.createElement("div");
+        div.className = "semestre";
+        const h2 = document.createElement("h2");
+        h2.textContent = `Semestre ${sem.num}`;
+        div.appendChild(h2);
 
-// Mostrar extracurriculares disponibles
-function renderExtracurriculares() {
-  const lista = document.getElementById("lista-extracurriculares");
-  lista.innerHTML = "";
-  extracurriculares.forEach(curso => {
-    if (!aprobados.includes(curso)) {
-      let li = document.createElement("li");
-      li.textContent = curso;
-      lista.appendChild(li);
-    }
-  });
+        sem.cursos.forEach(curso => {
+            const cDiv = document.createElement("div");
+            cDiv.className = "curso azul";
+            cDiv.textContent = `${curso.nombre} (${curso.creditos} cr.)`;
+            cDiv.onclick = () => {
+                if(curso.extrac) abrirModal();
+            };
+            div.appendChild(cDiv);
+        });
+
+        cont.appendChild(div);
+    });
+
+    // Lista final extracurriculares restantes
+    const resto = document.createElement("div");
+    resto.className = "semestre";
+    resto.innerHTML = "<h2>Extracurriculares no cursados</h2>";
+    extracPendientes.forEach(ex => {
+        const cDiv = document.createElement("div");
+        cDiv.className = "curso";
+        cDiv.textContent = `${ex.nombre} (${ex.creditos} cr.)`;
+        resto.appendChild(cDiv);
+    });
+    cont.appendChild(resto);
 }
 
-// Cargar opciones en semestre 8
-function cargarOpcionesElectivo() {
-  const select = document.getElementById("curso-electivo");
-  select.innerHTML = "<option value=''>Seleccione...</option>";
-  extracurriculares.forEach(curso => {
-    if (!aprobados.includes(curso)) {
-      let opt = document.createElement("option");
-      opt.value = curso;
-      opt.textContent = curso;
-      select.appendChild(opt);
-    }
-  });
+function abrirModal() {
+    const lista = document.getElementById("listaExtrac");
+    lista.innerHTML = "";
+    extracPendientes.forEach((ex, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = `${ex.nombre} (${ex.creditos} cr.)`;
+        btn.onclick = () => seleccionarExtrac(i);
+        lista.appendChild(btn);
+    });
+    document.getElementById("modalExtrac").style.display = "flex";
 }
 
-// Evento para marcar electivo como aprobado
-document.getElementById("curso-electivo").addEventListener("change", function() {
-  let seleccionado = this.value;
-  if (seleccionado && !aprobados.includes(seleccionado)) {
-    aprobados.push(seleccionado);
-    renderExtracurriculares();
-    cargarOpcionesElectivo();
-  }
-});
-
-// Validación de bloqueos complejos
-function puedeCursar(curso, requisitos) {
-  return (
-    creditos >= requisitos.creditos &&
-    requisitos.cursos.every(c => cursosAprobados.includes(c))
-  );
+function cerrarModal() {
+    document.getElementById("modalExtrac").style.display = "none";
 }
 
-// Inicializar
-renderExtracurriculares();
-cargarOpcionesElectivo();
+function seleccionarExtrac(index) {
+    const elegido = extracPendientes.splice(index,1)[0];
+    creditos += elegido.creditos;
+    actualizarBarra();
+    semestres.find(s=>s.num===8).cursos.push(elegido);
+    cerrarModal();
+    renderMalla();
+}
+
+function actualizarBarra() {
+    creditosEl.textContent = creditos;
+    barra.style.width = Math.min((creditos/220)*100, 100) + "%";
+}
+
+renderMalla();
 </script>
 
 </body>
